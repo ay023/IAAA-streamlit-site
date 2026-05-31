@@ -1,0 +1,12 @@
+[
+  {
+    "title": "SmartSignal-AI",
+    "description": "An intelligent traffic signal system using AI, simulation, and live dashboards.",
+    "technologies": ["Python", "SUMO", "Streamlit", "AI"],
+    "status": "In Progress",
+    "image": "assets/projects/smartsignal.png",
+    "github": "",
+    "demo": "",
+    "report": ""
+  }
+]
