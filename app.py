@@ -249,6 +249,18 @@ def apply_css():
                 font-size: 1.12rem;
             }
 
+            .stMarkdown h1 a,
+            .stMarkdown h2 a,
+            .stMarkdown h3 a,
+            [data-testid="stMarkdownContainer"] h1 a,
+            [data-testid="stMarkdownContainer"] h2 a,
+            [data-testid="stMarkdownContainer"] h3 a,
+            a.anchor-link,
+            a.headerlink,
+            a[title="Permalink"] {
+                display: none !important;
+            }
+
             a {
                 color: var(--secondary);
                 text-decoration: none;
@@ -838,11 +850,25 @@ def render_contact():
         "For academic collaboration, project discussion, or university activities, the team can be reached through the contact details below.",
     )
 
-    st.markdown('<div class="card">', unsafe_allow_html=True)
-    st.markdown("### Team Contact")
-    st.markdown(f"**Email:** {clean_text(CONTACT_INFO.get('email'), 'Email coming soon')}")
-    st.markdown(f"**Contact person:** {clean_text(CONTACT_INFO.get('contact_person'), 'Contact person TBA')}")
-    st.markdown("</div>", unsafe_allow_html=True)
+    contact_rows = []
+    email = str(CONTACT_INFO.get("email") or "").strip()
+    contact_person = str(CONTACT_INFO.get("contact_person") or "").strip()
+
+    if email:
+        contact_rows.append(f"<p class=\"muted\"><strong>Email:</strong> {email}</p>")
+    if contact_person:
+        contact_rows.append(f"<p class=\"muted\"><strong>Contact person:</strong> {contact_person}</p>")
+
+    if contact_rows:
+        st.markdown(
+            f"""
+            <div class="card">
+                <h3>Team Contact</h3>
+                {''.join(contact_rows)}
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
 
 
 def main():
