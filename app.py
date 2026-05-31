@@ -48,10 +48,7 @@ IMPORTANT_LINKS = {
 }
 
 CONTACT_INFO = {
-    "email": "iaaa.team@example.com",
-    "github": "",
-    "linkedin": "",
-    "facebook": "",
+    "email": "alialabid@ieee.org",
     "contact_person": "IAAA Team Coordinator",
 }
 
@@ -500,6 +497,27 @@ def apply_css():
                 color: #ffffff;
             }
 
+            .primary-action {
+                display: inline-flex;
+                width: fit-content;
+                align-items: center;
+                justify-content: center;
+                margin-top: 24px;
+                border: 1px solid rgba(76, 215, 246, 0.38);
+                border-radius: 8px;
+                padding: 11px 16px;
+                color: #ffffff;
+                font-weight: 800;
+                text-decoration: none;
+                background: linear-gradient(135deg, var(--primary-strong), var(--secondary-strong));
+                box-shadow: 0 12px 30px rgba(6, 182, 212, 0.18);
+            }
+
+            .primary-action:hover {
+                color: #ffffff;
+                border-color: var(--primary);
+            }
+
             .empty-note {
                 border: 1px dashed var(--border-bright);
                 background: rgba(30, 41, 59, 0.58);
@@ -581,8 +599,7 @@ def render_link(label, url):
     url = str(url or "").strip()
     if url:
         st.markdown(f"[{label}]({url})")
-    else:
-        st.caption(f"{label}: link coming soon")
+    
 
 
 def render_hero():
@@ -625,7 +642,7 @@ def render_about():
     render_section_header(
         "About",
         "About IAAA",
-        "A focused team building technical projects that connect academic learning with practical engineering.",
+        "A student-led academic team building practical systems from research, engineering, and disciplined collaboration.",
     )
     who, mission, vision = st.columns(3, gap="medium")
     with who:
@@ -633,8 +650,8 @@ def render_about():
             """
             <div class="card">
                 <h3>Who We Are</h3>
-                <p class="muted">IAAA is a university student technical team that explores intelligent systems,
-                automation, simulation, and software development through applied academic projects.</p>
+                <p class="muted">IAAA brings together students who are interested in turning technical study into
+                thoughtful, working academic projects in intelligent systems, automation, simulation, and software.</p>
             </div>
             """,
             unsafe_allow_html=True,
@@ -644,8 +661,8 @@ def render_about():
             """
             <div class="card">
                 <h3>Mission</h3>
-                <p class="muted">To design, prototype, and document meaningful technical solutions while helping
-                students grow through teamwork, research, and hands-on engineering practice.</p>
+                <p class="muted">To develop well-documented prototypes, strengthen technical skill, and create a
+                collaborative environment where students learn by building serious, useful systems.</p>
             </div>
             """,
             unsafe_allow_html=True,
@@ -655,8 +672,8 @@ def render_about():
             """
             <div class="card">
                 <h3>Vision</h3>
-                <p class="muted">To become a recognized student innovation team that contributes reliable,
-                well-presented, and socially useful academic technology projects.</p>
+                <p class="muted">To become a trusted academic innovation team known for clear ideas, reliable
+                engineering practice, and projects that reflect both ambition and responsibility.</p>
             </div>
             """,
             unsafe_allow_html=True,
@@ -679,7 +696,7 @@ def render_team():
     render_section_header(
         "People",
         "Team Members",
-        "Profiles can be updated directly from data/team.json as the team grows.",
+        "A multidisciplinary group of students contributing research, design, development, analysis, and project leadership.",
     )
 
     cols = st.columns(3, gap="medium")
@@ -692,11 +709,6 @@ def render_team():
             st.markdown(f"### {clean_text(member.get('name'), 'Team Member')}")
             st.markdown(f"**{clean_text(member.get('role'), 'Technical Member')}**")
             st.markdown(f'<p class="muted">{clean_text(member.get("description"), "Profile details coming soon.")}</p>', unsafe_allow_html=True)
-            c1, c2 = st.columns(2)
-            with c1:
-                render_link("GitHub", member.get("github"))
-            with c2:
-                render_link("LinkedIn", member.get("linkedin"))
             st.markdown("</div>", unsafe_allow_html=True)
 
 
@@ -708,7 +720,7 @@ def render_projects():
     render_section_header(
         "Work",
         "Projects",
-        "Technical projects across AI, simulation, dashboards, smart systems, and academic platforms.",
+        "Applied academic work across artificial intelligence, simulation, dashboards, smart systems, and software platforms.",
     )
 
     for index in range(0, len(projects), 2):
@@ -731,13 +743,6 @@ def render_projects():
                     + "</div>",
                     unsafe_allow_html=True,
                 )
-                link_cols = st.columns(3)
-                with link_cols[0]:
-                    render_link("GitHub", project.get("github"))
-                with link_cols[1]:
-                    render_link("Demo", project.get("demo"))
-                with link_cols[2]:
-                    render_link("Report", project.get("report"))
                 st.markdown("</div>", unsafe_allow_html=True)
 
 
@@ -749,7 +754,7 @@ def render_achievements():
     render_section_header(
         "Progress",
         "Achievements and Activities",
-        "Competitions, milestones, events, certificates, university activities, and team achievements.",
+        "A record of academic milestones, competitions, events, certificates, university activities, and team progress.",
     )
 
     for item in achievements:
@@ -771,7 +776,7 @@ def render_gallery():
     render_section_header(
         "Media",
         "Gallery / Media",
-        "Project screenshots, team activity photos, demo images, and selected video links.",
+        "Selected project visuals, team activity photos, prototype screenshots, and demonstration media.",
     )
 
     gallery_dir = ASSETS_DIR / "gallery"
@@ -806,7 +811,7 @@ def render_gallery():
             st.markdown(f'<p class="muted">{clean_text(video.get("description"), "")}</p>', unsafe_allow_html=True)
             st.video(url)
     if not has_video:
-        st.caption("Add YouTube URLs in the YOUTUBE_LINKS list near the top of app.py.")
+        st.caption("Video highlights will appear here when they are available.")
 
 
 def render_links():
@@ -830,20 +835,13 @@ def render_contact():
     render_section_header(
         "Contact",
         "Contact IAAA",
-        "Update contact details in CONTACT_INFO near the top of app.py.",
+        "For academic collaboration, project discussion, or university activities, the team can be reached through the contact details below.",
     )
 
     st.markdown('<div class="card">', unsafe_allow_html=True)
-    contact_cols = st.columns(2, gap="medium")
-    with contact_cols[0]:
-        st.markdown("### Team Contact")
-        st.markdown(f"**Email:** {clean_text(CONTACT_INFO.get('email'), 'Email coming soon')}")
-        st.markdown(f"**Contact person:** {clean_text(CONTACT_INFO.get('contact_person'), 'Contact person TBA')}")
-    with contact_cols[1]:
-        st.markdown("### Social Links")
-        render_link("GitHub", CONTACT_INFO.get("github"))
-        render_link("LinkedIn", CONTACT_INFO.get("linkedin"))
-        render_link("Facebook", CONTACT_INFO.get("facebook"))
+    st.markdown("### Team Contact")
+    st.markdown(f"**Email:** {clean_text(CONTACT_INFO.get('email'), 'Email coming soon')}")
+    st.markdown(f"**Contact person:** {clean_text(CONTACT_INFO.get('contact_person'), 'Contact person TBA')}")
     st.markdown("</div>", unsafe_allow_html=True)
 
 
@@ -862,7 +860,6 @@ def main():
     render_projects()
     render_achievements()
     render_gallery()
-    render_links()
     render_contact()
 
     st.markdown("---")
