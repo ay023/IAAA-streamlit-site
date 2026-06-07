@@ -17,9 +17,9 @@ Public showcase website for **IAAA**, a student technical team focused on artifi
 
 ## Design System
 
-The visual identity follows the IAAA Academic Innovation design system: dark navy surfaces, blue/cyan accents, Inter typography, rounded cards, and technical academic styling.
+The visual identity follows a clean white professional showcase theme for IAAA Academic Innovation: white backgrounds, dark readable text, light-gray borders, rounded cards, and restrained blue accents.
 
-The website uses a corporate modern interface with a technical edge: a near-black background, dark glass-like cards, blue-to-cyan accents, pill badges, and readable academic showcase sections. Visual updates are controlled mainly from the custom CSS inside `app.py`, while team, project, and achievement content remains editable through JSON files.
+The website uses a simple university/team presentation style with generous spacing, organized cards, readable academic sections, and minimal visual noise. Visual updates are controlled mainly from the custom CSS inside `app.py`, while team, project, and achievement content remains editable through JSON files.
 
 ## Project Structure
 

@@ -187,32 +187,23 @@ def apply_css():
         """
         <style>
             :root {
-                --background: #101415;
-                --surface-lowest: #0b0f10;
-                --surface-card: #1d2022;
-                --surface-slate: #1e293b;
-                --surface-raised: #272a2c;
-                --surface-higher: #323537;
-                --primary: #adc6ff;
-                --primary-strong: #3b82f6;
-                --secondary: #4cd7f6;
-                --secondary-strong: #06b6d4;
-                --text-primary: #f8fafc;
-                --text-soft: #e0e3e5;
-                --text-secondary: #c2c6d6;
-                --border: #334155;
-                --border-strong: #424754;
-                --border-bright: #8c909f;
-                --shadow: rgba(0, 0, 0, 0.34);
+                --background: #ffffff;
+                --secondary-background: #f8fafc;
+                --section-background: #f3f4f6;
+                --card-background: #ffffff;
+                --text-primary: #111827;
+                --text-secondary: #4b5563;
+                --text-muted: #6b7280;
+                --border: #e5e7eb;
+                --primary: #2563eb;
+                --primary-hover: #1d4ed8;
+                --accent-soft: #eff6ff;
+                --shadow: rgba(17, 24, 39, 0.08);
                 --font-body: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-                --font-mono: "JetBrains Mono", "Courier New", monospace;
             }
 
             .stApp {
-                background:
-                    radial-gradient(circle at 18% 0%, rgba(59, 130, 246, 0.18), transparent 28rem),
-                    radial-gradient(circle at 88% 10%, rgba(76, 215, 246, 0.12), transparent 24rem),
-                    linear-gradient(180deg, #101415 0%, #0b0f10 100%);
+                background: var(--background);
                 color: var(--text-primary);
                 font-family: var(--font-body);
             }
@@ -262,27 +253,26 @@ def apply_css():
             }
 
             a {
-                color: var(--secondary);
-                text-decoration: none;
-            }
-
-            a:hover {
                 color: var(--primary);
                 text-decoration: none;
             }
 
+            a:hover {
+                color: var(--primary-hover);
+                text-decoration: none;
+            }
+
             [data-testid="stCaptionContainer"] {
-                color: var(--text-secondary);
+                color: var(--text-muted);
             }
 
             hr {
                 border-color: var(--border);
-                opacity: 0.75;
+                opacity: 1;
             }
 
             .section-kicker {
-                color: var(--secondary);
-                font-family: var(--font-mono);
+                color: var(--primary);
                 font-size: 0.78rem;
                 font-weight: 800;
                 letter-spacing: 0.08rem;
@@ -293,28 +283,13 @@ def apply_css():
             .hero {
                 position: relative;
                 overflow: hidden;
-                background:
-                    radial-gradient(circle at 82% 14%, rgba(76, 215, 246, 0.26), transparent 18rem),
-                    radial-gradient(circle at 18% 6%, rgba(59, 130, 246, 0.24), transparent 20rem),
-                    linear-gradient(135deg, #0b0f10 0%, #101415 42%, #1e293b 100%);
+                background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
                 color: var(--text-primary);
                 border-radius: 16px;
                 padding: clamp(32px, 5vw, 64px);
                 margin-bottom: 40px;
-                border: 1px solid rgba(76, 215, 246, 0.22);
-                box-shadow: 0 28px 80px var(--shadow);
-            }
-
-            .hero::before {
-                content: "";
-                position: absolute;
-                inset: 0;
-                background:
-                    linear-gradient(rgba(173, 198, 255, 0.05) 1px, transparent 1px),
-                    linear-gradient(90deg, rgba(173, 198, 255, 0.04) 1px, transparent 1px);
-                background-size: 44px 44px;
-                mask-image: linear-gradient(135deg, rgba(0, 0, 0, 0.85), transparent 72%);
-                pointer-events: none;
+                border: 1px solid var(--border);
+                box-shadow: 0 16px 40px var(--shadow);
             }
 
             .hero > div {
@@ -338,10 +313,17 @@ def apply_css():
             }
 
             .hero-description {
-                color: var(--text-soft);
+                color: var(--text-secondary);
                 font-size: 1.02rem;
                 line-height: 1.7;
                 max-width: 720px;
+            }
+
+            .hero-actions {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 12px;
+                margin-top: 24px;
             }
 
             .stat-row {
@@ -352,40 +334,38 @@ def apply_css():
             }
 
             .stat {
-                border: 1px solid rgba(76, 215, 246, 0.22);
-                background: rgba(30, 41, 59, 0.72);
+                border: 1px solid var(--border);
+                background: var(--card-background);
                 border-radius: 8px;
                 padding: 14px;
-                backdrop-filter: blur(12px);
             }
 
             .stat strong {
                 display: block;
-                color: var(--secondary);
-                font-family: var(--font-mono);
+                color: var(--primary);
                 font-size: 1rem;
-                letter-spacing: 0.04rem;
+                letter-spacing: 0;
                 margin-bottom: 4px;
             }
 
             .stat span {
-                color: var(--text-secondary);
+                color: var(--text-muted);
                 font-size: 0.88rem;
             }
 
             .card {
-                background: linear-gradient(180deg, rgba(30, 41, 59, 0.92), rgba(29, 32, 34, 0.96));
+                background: var(--card-background);
                 border: 1px solid var(--border);
                 border-radius: 16px;
                 padding: 24px;
                 min-height: 100%;
-                box-shadow: 0 18px 46px rgba(0, 0, 0, 0.18);
+                box-shadow: 0 10px 30px var(--shadow);
                 transition: border-color 160ms ease, box-shadow 160ms ease, transform 160ms ease;
             }
 
             .card:hover {
-                border-color: rgba(76, 215, 246, 0.7);
-                box-shadow: 0 22px 54px rgba(6, 182, 212, 0.10);
+                border-color: #cbd5e1;
+                box-shadow: 0 14px 34px rgba(17, 24, 39, 0.10);
                 transform: translateY(-2px);
             }
 
@@ -401,6 +381,12 @@ def apply_css():
                 line-height: 1.65;
             }
 
+            .team-role {
+                color: var(--primary);
+                font-weight: 700;
+                margin: 0 0 10px;
+            }
+
             .badge-row {
                 display: flex;
                 flex-wrap: wrap;
@@ -413,10 +399,9 @@ def apply_css():
                 display: inline-flex;
                 align-items: center;
                 border-radius: 999px;
-                border: 1px solid rgba(76, 215, 246, 0.26);
-                background: rgba(6, 182, 212, 0.12);
-                color: var(--secondary);
-                font-family: var(--font-mono);
+                border: 1px solid #dbeafe;
+                background: var(--accent-soft);
+                color: var(--primary);
                 font-size: 0.78rem;
                 font-weight: 700;
                 padding: 6px 10px;
@@ -424,23 +409,20 @@ def apply_css():
             }
 
             .status {
-                background: rgba(59, 130, 246, 0.16);
-                border-color: rgba(173, 198, 255, 0.34);
+                background: #ffffff;
+                border-color: #bfdbfe;
                 color: var(--primary);
             }
 
             .image-placeholder {
                 min-height: 150px;
                 border-radius: 16px;
-                border: 1px dashed var(--border-bright);
-                background:
-                    linear-gradient(135deg, rgba(59, 130, 246, 0.12), rgba(76, 215, 246, 0.08)),
-                    var(--surface-lowest);
-                color: var(--text-secondary);
+                border: 1px dashed #cbd5e1;
+                background: var(--secondary-background);
+                color: var(--text-muted);
                 display: flex;
                 align-items: center;
                 justify-content: center;
-                font-family: var(--font-mono);
                 font-weight: 700;
                 margin-bottom: 16px;
                 text-align: center;
@@ -449,57 +431,51 @@ def apply_css():
             .logo-placeholder {
                 height: 180px;
                 border-radius: 16px;
-                border: 1px solid rgba(76, 215, 246, 0.26);
-                background: rgba(11, 15, 16, 0.46);
+                border: 1px solid var(--border);
+                background: var(--secondary-background);
                 color: var(--primary);
                 display: flex;
                 align-items: center;
                 justify-content: center;
                 font-size: 2.4rem;
                 font-weight: 900;
-                box-shadow: inset 0 0 40px rgba(76, 215, 246, 0.10);
             }
 
             .avatar-placeholder {
                 min-height: 190px;
                 border-radius: 16px;
-                border: 1px solid rgba(76, 215, 246, 0.26);
-                background:
-                    radial-gradient(circle at 70% 18%, rgba(76, 215, 246, 0.18), transparent 9rem),
-                    linear-gradient(135deg, rgba(59, 130, 246, 0.24), rgba(11, 15, 16, 0.82));
-                color: var(--text-primary);
+                border: 1px solid #bfdbfe;
+                background: #eff6ff;
+                color: var(--primary);
                 display: flex;
                 align-items: center;
                 justify-content: center;
-                font-family: var(--font-mono);
                 font-size: 2.6rem;
                 font-weight: 900;
-                letter-spacing: 0.04rem;
+                letter-spacing: 0;
                 margin-bottom: 16px;
-                box-shadow: inset 0 0 40px rgba(76, 215, 246, 0.08);
             }
 
             [data-testid="stImage"] img {
                 border-radius: 16px;
-                border: 1px solid rgba(66, 71, 84, 0.8);
-                background: var(--surface-lowest);
+                border: 1px solid var(--border);
+                background: var(--secondary-background);
             }
 
             .timeline-item {
-                border-left: 4px solid var(--secondary);
+                border-left: 4px solid var(--primary);
                 border-radius: 0 16px 16px 0;
-                background: linear-gradient(90deg, rgba(76, 215, 246, 0.10), rgba(30, 41, 59, 0.62));
+                background: var(--card-background);
                 border-top: 1px solid var(--border);
                 border-right: 1px solid var(--border);
                 border-bottom: 1px solid var(--border);
                 padding: 18px 20px;
                 margin-bottom: 14px;
-                box-shadow: 0 14px 32px rgba(0, 0, 0, 0.14);
+                box-shadow: 0 10px 28px var(--shadow);
             }
 
             .timeline-meta {
-                color: var(--secondary);
-                font-family: var(--font-mono);
+                color: var(--primary);
                 font-size: 0.82rem;
                 font-weight: 800;
                 text-transform: uppercase;
@@ -514,18 +490,18 @@ def apply_css():
                 display: inline-flex;
                 width: fit-content;
                 margin: 4px 0;
-                border: 1px solid rgba(76, 215, 246, 0.28);
+                border: 1px solid var(--border);
                 border-radius: 8px;
                 padding: 8px 12px;
-                color: var(--text-primary);
+                color: var(--primary);
                 font-weight: 700;
                 text-decoration: none;
-                background: linear-gradient(135deg, rgba(59, 130, 246, 0.24), rgba(6, 182, 212, 0.18));
+                background: var(--card-background);
             }
 
             .link-list a:hover {
-                border-color: var(--secondary);
-                color: #ffffff;
+                border-color: var(--primary);
+                color: var(--primary-hover);
             }
 
             .primary-action {
@@ -533,32 +509,52 @@ def apply_css():
                 width: fit-content;
                 align-items: center;
                 justify-content: center;
-                margin-top: 24px;
-                border: 1px solid rgba(76, 215, 246, 0.38);
+                border: 1px solid var(--primary);
                 border-radius: 8px;
                 padding: 11px 16px;
                 color: #ffffff;
                 font-weight: 800;
                 text-decoration: none;
-                background: linear-gradient(135deg, var(--primary-strong), var(--secondary-strong));
-                box-shadow: 0 12px 30px rgba(6, 182, 212, 0.18);
+                background: var(--primary);
+                box-shadow: 0 10px 22px rgba(37, 99, 235, 0.16);
             }
 
             .primary-action:hover {
                 color: #ffffff;
-                border-color: var(--primary);
+                background: var(--primary-hover);
+                border-color: var(--primary-hover);
+            }
+
+            .secondary-action {
+                display: inline-flex;
+                width: fit-content;
+                align-items: center;
+                justify-content: center;
+                border: 1px solid var(--border);
+                border-radius: 8px;
+                padding: 11px 16px;
+                color: var(--text-primary);
+                font-weight: 800;
+                text-decoration: none;
+                background: var(--card-background);
+            }
+
+            .secondary-action:hover {
+                color: var(--primary-hover);
+                border-color: #bfdbfe;
+                background: #eff6ff;
             }
 
             .empty-note {
-                border: 1px dashed var(--border-bright);
-                background: rgba(30, 41, 59, 0.58);
-                color: var(--text-secondary);
+                border: 1px dashed #cbd5e1;
+                background: var(--secondary-background);
+                color: var(--text-muted);
                 border-radius: 16px;
                 padding: 20px;
             }
 
             [data-testid="stVerticalBlock"] > [style*="flex-direction: column"] > [data-testid="stMarkdownContainer"] {
-                color: var(--text-soft);
+                color: var(--text-secondary);
             }
 
             [data-testid="stMarkdownContainer"] strong {
@@ -573,15 +569,16 @@ def apply_css():
             .stButton > button,
             .stDownloadButton > button {
                 border-radius: 8px;
-                border: 1px solid rgba(76, 215, 246, 0.34);
-                background: linear-gradient(135deg, var(--primary-strong), var(--secondary-strong));
+                border: 1px solid var(--primary);
+                background: var(--primary);
                 color: #ffffff;
                 font-weight: 800;
             }
 
             .stButton > button:hover,
             .stDownloadButton > button:hover {
-                border-color: var(--primary);
+                border-color: var(--primary-hover);
+                background: var(--primary-hover);
             }
 
             @media (max-width: 760px) {
@@ -655,6 +652,15 @@ def render_hero():
             st.markdown(
                 '<p class="hero-description">IAAA is a student technical team focused on artificial intelligence, '
                 "automation, simulation, software systems, and innovative academic projects.</p>",
+                unsafe_allow_html=True,
+            )
+            st.markdown(
+                """
+                <div class="hero-actions">
+                    <a class="primary-action" href="#projects">View Projects</a>
+                    <a class="secondary-action" href="#team-members">Meet the Team</a>
+                </div>
+                """,
                 unsafe_allow_html=True,
             )
             st.markdown(
@@ -754,7 +760,10 @@ def render_team():
                     unsafe_allow_html=True,
                 )
             st.markdown(f"### {member_name}")
-            st.markdown(f"**{clean_text(member.get('role'), 'Technical Member')}**")
+            st.markdown(
+                f'<p class="team-role">{clean_text(member.get("role"), "Technical Member")}</p>',
+                unsafe_allow_html=True,
+            )
             st.markdown(f'<p class="muted">{clean_text(member.get("description"), "Profile details coming soon.")}</p>', unsafe_allow_html=True)
             st.markdown("</div>", unsafe_allow_html=True)
 
@@ -844,7 +853,7 @@ def render_gallery():
                 safe_image(image, caption=image.stem.replace("-", " ").replace("_", " ").title())
     else:
         st.markdown(
-            '<div class="empty-note">Gallery images will appear here after files are added to assets/gallery/.</div>',
+            '<div class="empty-note">Gallery media will appear here when team photos, screenshots, or demo visuals are available.</div>',
             unsafe_allow_html=True,
         )
 
