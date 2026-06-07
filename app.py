@@ -460,6 +460,25 @@ def apply_css():
                 box-shadow: inset 0 0 40px rgba(76, 215, 246, 0.10);
             }
 
+            .avatar-placeholder {
+                min-height: 190px;
+                border-radius: 16px;
+                border: 1px solid rgba(76, 215, 246, 0.26);
+                background:
+                    radial-gradient(circle at 70% 18%, rgba(76, 215, 246, 0.18), transparent 9rem),
+                    linear-gradient(135deg, rgba(59, 130, 246, 0.24), rgba(11, 15, 16, 0.82));
+                color: var(--text-primary);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-family: var(--font-mono);
+                font-size: 2.6rem;
+                font-weight: 900;
+                letter-spacing: 0.04rem;
+                margin-bottom: 16px;
+                box-shadow: inset 0 0 40px rgba(76, 215, 246, 0.08);
+            }
+
             [data-testid="stImage"] img {
                 border-radius: 16px;
                 border: 1px solid rgba(66, 71, 84, 0.8);
@@ -599,6 +618,13 @@ def clean_text(value, fallback="Not available yet"):
     return text if text else fallback
 
 
+def member_initials(name):
+    words = [part for part in clean_text(name, "Team Member").split() if part]
+    if not words:
+        return "TM"
+    return "".join(word[0].upper() for word in words[:2])
+
+
 def render_section_header(kicker, title, description=None):
     st.markdown(f'<div class="section-kicker">{kicker}</div>', unsafe_allow_html=True)
     st.markdown(f"## {title}")
@@ -717,8 +743,17 @@ def render_team():
             member = {}
         with cols[index % 3]:
             st.markdown('<div class="card">', unsafe_allow_html=True)
-            safe_image(member.get("image"))
-            st.markdown(f"### {clean_text(member.get('name'), 'Team Member')}")
+            member_name = clean_text(member.get("name"), "Team Member")
+            image_path = str(member.get("image", "") or "").strip()
+            image_file = BASE_DIR / image_path if image_path and not Path(image_path).is_absolute() else None
+            if image_file and image_file.exists() and image_file.is_file():
+                st.image(str(image_file), use_container_width=True)
+            else:
+                st.markdown(
+                    f'<div class="avatar-placeholder">{member_initials(member_name)}</div>',
+                    unsafe_allow_html=True,
+                )
+            st.markdown(f"### {member_name}")
             st.markdown(f"**{clean_text(member.get('role'), 'Technical Member')}**")
             st.markdown(f'<p class="muted">{clean_text(member.get("description"), "Profile details coming soon.")}</p>', unsafe_allow_html=True)
             st.markdown("</div>", unsafe_allow_html=True)
