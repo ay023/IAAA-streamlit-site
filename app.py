@@ -1,5 +1,7 @@
 from pathlib import Path
 import json
+import base64
+import html
 
 import streamlit as st
 import pandas as pd
@@ -163,9 +165,8 @@ def load_json(path, fallback=None):
 
 
 def safe_image(image_path, caption=None, use_container_width=True):
-    """Display an image when available and otherwise render a calm placeholder."""
+    """Display an image only when the file is available."""
     if not image_path:
-        st.markdown('<div class="image-placeholder">Image coming soon</div>', unsafe_allow_html=True)
         return
 
     path = Path(image_path)
@@ -176,10 +177,8 @@ def safe_image(image_path, caption=None, use_container_width=True):
         if path.exists() and path.is_file():
             Image.open(path)
             st.image(str(path), caption=caption, use_container_width=use_container_width)
-        else:
-            st.markdown('<div class="image-placeholder">Image coming soon</div>', unsafe_allow_html=True)
     except Exception:
-        st.markdown('<div class="image-placeholder">Image coming soon</div>', unsafe_allow_html=True)
+        return
 
 
 def apply_css():
@@ -187,18 +186,20 @@ def apply_css():
         """
         <style>
             :root {
-                --background: #ffffff;
-                --secondary-background: #f8fafc;
-                --section-background: #f3f4f6;
-                --card-background: #ffffff;
-                --text-primary: #111827;
-                --text-secondary: #4b5563;
-                --text-muted: #6b7280;
-                --border: #e5e7eb;
-                --primary: #2563eb;
-                --primary-hover: #1d4ed8;
-                --accent-soft: #eff6ff;
-                --shadow: rgba(17, 24, 39, 0.08);
+                --background: #d8d0c3;
+                --secondary-background: #ebe6dd;
+                --section-background: #ebe6dd;
+                --card-background: #f4f1eb;
+                --text-primary: #111718;
+                --text-heading-soft: #1f2526;
+                --text-body: #2f3433;
+                --text-secondary: #4a4f4d;
+                --text-muted: #6b6f6a;
+                --border: #c8bfb2;
+                --primary: #111718;
+                --primary-hover: #111718;
+                --accent-soft: #e4ddd2;
+                --shadow: rgba(31, 37, 38, 0.12);
                 --font-body: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
             }
 
@@ -223,9 +224,11 @@ def apply_css():
             }
 
             h1, h2, h3,
+            h4,
             .stMarkdown h1,
             .stMarkdown h2,
-            .stMarkdown h3 {
+            .stMarkdown h3,
+            .stMarkdown h4 {
                 color: var(--text-primary);
             }
 
@@ -272,18 +275,24 @@ def apply_css():
             }
 
             .section-kicker {
-                color: var(--primary);
+                display: block;
+                color: var(--text-heading-soft);
                 font-size: 0.78rem;
                 font-weight: 800;
                 letter-spacing: 0.08rem;
                 text-transform: uppercase;
-                margin-bottom: 8px;
+                margin-top: 48px;
+                margin-bottom: 16px;
+            }
+
+            .hero .section-kicker {
+                margin-top: 0;
             }
 
             .hero {
                 position: relative;
                 overflow: hidden;
-                background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+                background: var(--secondary-background);
                 color: var(--text-primary);
                 border-radius: 16px;
                 padding: clamp(32px, 5vw, 64px);
@@ -292,9 +301,11 @@ def apply_css():
                 box-shadow: 0 16px 40px var(--shadow);
             }
 
-            .hero > div {
-                position: relative;
-                z-index: 1;
+            .hero-grid {
+                display: grid;
+                grid-template-columns: minmax(0, 1fr);
+                gap: 0;
+                align-items: center;
             }
 
             .hero h1 {
@@ -306,24 +317,17 @@ def apply_css():
             }
 
             .hero-slogan {
-                color: var(--primary);
+                color: var(--text-heading-soft);
                 font-size: clamp(1.12rem, 2vw, 1.45rem);
                 font-weight: 700;
                 margin-bottom: 16px;
             }
 
             .hero-description {
-                color: var(--text-secondary);
+                color: var(--text-body);
                 font-size: 1.02rem;
                 line-height: 1.7;
                 max-width: 720px;
-            }
-
-            .hero-actions {
-                display: flex;
-                flex-wrap: wrap;
-                gap: 12px;
-                margin-top: 24px;
             }
 
             .stat-row {
@@ -335,14 +339,14 @@ def apply_css():
 
             .stat {
                 border: 1px solid var(--border);
-                background: var(--card-background);
+                background: rgba(244, 241, 235, 0.72);
                 border-radius: 8px;
                 padding: 14px;
             }
 
             .stat strong {
                 display: block;
-                color: var(--primary);
+                color: var(--text-heading-soft);
                 font-size: 1rem;
                 letter-spacing: 0;
                 margin-bottom: 4px;
@@ -364,13 +368,13 @@ def apply_css():
             }
 
             .card:hover {
-                border-color: #cbd5e1;
-                box-shadow: 0 14px 34px rgba(17, 24, 39, 0.10);
+                border-color: #b8ad9e;
+                box-shadow: 0 14px 34px rgba(31, 37, 38, 0.14);
                 transform: translateY(-2px);
             }
 
             .card h3 {
-                color: var(--text-primary);
+                color: var(--text-heading-soft);
                 margin-top: 0;
                 margin-bottom: 8px;
                 font-size: 1.15rem;
@@ -382,9 +386,41 @@ def apply_css():
             }
 
             .team-role {
-                color: var(--primary);
+                color: var(--text-heading-soft);
                 font-weight: 700;
-                margin: 0 0 10px;
+                font-size: 1rem;
+                line-height: 1.4;
+                margin: 0 0 18px;
+            }
+
+            .team-card h3 {
+                color: var(--text-primary);
+                font-size: 1.375rem;
+                line-height: 1.25;
+                margin-top: 0;
+                margin-bottom: 14px;
+            }
+
+            .team-card {
+                text-align: center;
+                min-height: 460px;
+                height: 460px;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: flex-start;
+                padding: 28px 24px;
+            }
+
+            .team-card .muted {
+                color: var(--text-secondary);
+                max-width: 28rem;
+                margin-top: 0;
+                margin-left: auto;
+                margin-right: auto;
+                text-align: center;
+                font-size: 0.95rem;
+                line-height: 1.6;
             }
 
             .badge-row {
@@ -399,9 +435,9 @@ def apply_css():
                 display: inline-flex;
                 align-items: center;
                 border-radius: 999px;
-                border: 1px solid #dbeafe;
+                border: 1px solid #d2c8ba;
                 background: var(--accent-soft);
-                color: var(--primary);
+                color: var(--text-heading-soft);
                 font-size: 0.78rem;
                 font-weight: 700;
                 padding: 6px 10px;
@@ -409,51 +445,51 @@ def apply_css():
             }
 
             .status {
-                background: #ffffff;
-                border-color: #bfdbfe;
-                color: var(--primary);
-            }
-
-            .image-placeholder {
-                min-height: 150px;
-                border-radius: 16px;
-                border: 1px dashed #cbd5e1;
-                background: var(--secondary-background);
-                color: var(--text-muted);
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                font-weight: 700;
-                margin-bottom: 16px;
-                text-align: center;
-            }
-
-            .logo-placeholder {
-                height: 180px;
-                border-radius: 16px;
-                border: 1px solid var(--border);
-                background: var(--secondary-background);
-                color: var(--primary);
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                font-size: 2.4rem;
-                font-weight: 900;
+                background: #ebe6dd;
+                border-color: var(--border);
+                color: var(--text-heading-soft);
             }
 
             .avatar-placeholder {
-                min-height: 190px;
-                border-radius: 16px;
-                border: 1px solid #bfdbfe;
-                background: #eff6ff;
-                color: var(--primary);
+                width: 125px;
+                height: 125px;
+                border-radius: 50%;
+                border: 1px solid var(--border);
+                background: var(--secondary-background);
+                color: var(--text-heading-soft);
                 display: flex;
                 align-items: center;
                 justify-content: center;
-                font-size: 2.6rem;
+                font-size: 1.9rem;
                 font-weight: 900;
                 letter-spacing: 0;
-                margin-bottom: 16px;
+                margin: 0 auto 22px;
+            }
+
+            .member-photo {
+                width: 125px;
+                height: 125px;
+                border-radius: 50%;
+                object-fit: cover;
+                display: block;
+                margin: 0 auto 22px;
+                border: 1px solid var(--border);
+                background: var(--secondary-background);
+            }
+
+            .project-image {
+                width: 100%;
+                max-height: 230px;
+                object-fit: cover;
+                display: block;
+                margin-bottom: 18px;
+                border-radius: 16px;
+                border: 1px solid var(--border);
+                background: var(--secondary-background);
+            }
+
+            .project-card {
+                height: 100%;
             }
 
             [data-testid="stImage"] img {
@@ -475,14 +511,14 @@ def apply_css():
             }
 
             .timeline-meta {
-                color: var(--primary);
+                color: var(--text-heading-soft);
                 font-size: 0.82rem;
                 font-weight: 800;
                 text-transform: uppercase;
             }
 
             .timeline-item h3 {
-                color: var(--text-primary);
+                color: var(--text-heading-soft);
                 margin: 8px 0 4px;
             }
 
@@ -493,7 +529,7 @@ def apply_css():
                 border: 1px solid var(--border);
                 border-radius: 8px;
                 padding: 8px 12px;
-                color: var(--primary);
+                color: var(--text-heading-soft);
                 font-weight: 700;
                 text-decoration: none;
                 background: var(--card-background);
@@ -504,57 +540,8 @@ def apply_css():
                 color: var(--primary-hover);
             }
 
-            .primary-action {
-                display: inline-flex;
-                width: fit-content;
-                align-items: center;
-                justify-content: center;
-                border: 1px solid var(--primary);
-                border-radius: 8px;
-                padding: 11px 16px;
-                color: #ffffff;
-                font-weight: 800;
-                text-decoration: none;
-                background: var(--primary);
-                box-shadow: 0 10px 22px rgba(37, 99, 235, 0.16);
-            }
-
-            .primary-action:hover {
-                color: #ffffff;
-                background: var(--primary-hover);
-                border-color: var(--primary-hover);
-            }
-
-            .secondary-action {
-                display: inline-flex;
-                width: fit-content;
-                align-items: center;
-                justify-content: center;
-                border: 1px solid var(--border);
-                border-radius: 8px;
-                padding: 11px 16px;
-                color: var(--text-primary);
-                font-weight: 800;
-                text-decoration: none;
-                background: var(--card-background);
-            }
-
-            .secondary-action:hover {
-                color: var(--primary-hover);
-                border-color: #bfdbfe;
-                background: #eff6ff;
-            }
-
-            .empty-note {
-                border: 1px dashed #cbd5e1;
-                background: var(--secondary-background);
-                color: var(--text-muted);
-                border-radius: 16px;
-                padding: 20px;
-            }
-
             [data-testid="stVerticalBlock"] > [style*="flex-direction: column"] > [data-testid="stMarkdownContainer"] {
-                color: var(--text-secondary);
+                color: var(--text-body);
             }
 
             [data-testid="stMarkdownContainer"] strong {
@@ -571,7 +558,7 @@ def apply_css():
                 border-radius: 8px;
                 border: 1px solid var(--primary);
                 background: var(--primary);
-                color: #ffffff;
+                color: var(--card-background);
                 font-weight: 800;
             }
 
@@ -595,6 +582,10 @@ def apply_css():
                 }
 
                 .stat-row {
+                    grid-template-columns: 1fr;
+                }
+
+                .hero-grid {
                     grid-template-columns: 1fr;
                 }
 
@@ -622,6 +613,47 @@ def member_initials(name):
     return "".join(word[0].upper() for word in words[:2])
 
 
+def image_data_uri(image_file):
+    if not image_file or not image_file.exists() or not image_file.is_file():
+        return ""
+
+    suffix = image_file.suffix.lower()
+    media_type = {
+        ".jpg": "image/jpeg",
+        ".jpeg": "image/jpeg",
+        ".png": "image/png",
+        ".webp": "image/webp",
+    }.get(suffix)
+    if not media_type:
+        return ""
+
+    try:
+        image_data = base64.b64encode(image_file.read_bytes()).decode("utf-8")
+    except OSError:
+        return ""
+    return f"data:{media_type};base64,{image_data}"
+
+
+def member_avatar_html(image_file, name):
+    safe_name = html.escape(clean_text(name, "Team Member"))
+    image_src = image_data_uri(image_file)
+    if image_src:
+        return f'<img class="member-photo" src="{image_src}" alt="{safe_name}">'
+    return f'<div class="avatar-placeholder">{member_initials(name)}</div>'
+
+
+def project_image_html(image_path, title):
+    path = str(image_path or "").strip()
+    if not path:
+        return ""
+    image_file = BASE_DIR / path if not Path(path).is_absolute() else None
+    image_src = image_data_uri(image_file)
+    if not image_src:
+        return ""
+    safe_title = html.escape(clean_text(title, "Project image"))
+    return f'<img class="project-image" src="{image_src}" alt="{safe_title}">'
+
+
 def render_section_header(kicker, title, description=None):
     st.markdown(f'<div class="section-kicker">{kicker}</div>', unsafe_allow_html=True)
     st.markdown(f"## {title}")
@@ -638,48 +670,28 @@ def render_link(label, url):
 
 
 def render_hero():
-    logo_path = ASSETS_DIR / "logo.png"
-    with st.container():
-        st.markdown('<div class="hero">', unsafe_allow_html=True)
-        h_left, h_right = st.columns([2.2, 0.8], gap="large")
-        with h_left:
-            st.markdown('<div class="section-kicker">IAAA Academic Innovation</div>', unsafe_allow_html=True)
-            st.markdown("# IAAA")
-            st.markdown(
-                '<div class="hero-slogan">Engineering intelligent academic systems for real-world impact.</div>',
-                unsafe_allow_html=True,
-            )
-            st.markdown(
-                '<p class="hero-description">IAAA is a student technical team focused on artificial intelligence, '
-                "automation, simulation, software systems, and innovative academic projects.</p>",
-                unsafe_allow_html=True,
-            )
-            st.markdown(
-                """
-                <div class="hero-actions">
-                    <a class="primary-action" href="#projects">View Projects</a>
-                    <a class="secondary-action" href="#team-members">Meet the Team</a>
+    st.markdown(
+        """
+        <section class="hero">
+            <div class="hero-grid">
+                <div>
+                    <div class="section-kicker">IAAA Academic Innovation</div>
+                    <h1>IAAA</h1>
+                    <div class="hero-slogan">Engineering intelligent academic systems for real-world impact.</div>
+                    <p class="hero-description">IAAA is a student technical team focused on artificial intelligence,
+                    automation, simulation, software systems, and innovative academic projects.</p>
+                    <div class="stat-row">
+                        <div class="stat"><strong>AI</strong><span>Models and automation</span></div>
+                        <div class="stat"><strong>Simulation</strong><span>Scenarios and systems</span></div>
+                        <div class="stat"><strong>Software Systems</strong><span>Tools and dashboards</span></div>
+                        <div class="stat"><strong>Academic Innovation</strong><span>Research-minded projects</span></div>
+                    </div>
                 </div>
-                """,
-                unsafe_allow_html=True,
-            )
-            st.markdown(
-                """
-                <div class="stat-row">
-                    <div class="stat"><strong>AI</strong><span>Models and automation</span></div>
-                    <div class="stat"><strong>Simulation</strong><span>Scenarios and systems</span></div>
-                    <div class="stat"><strong>Software Systems</strong><span>Tools and dashboards</span></div>
-                    <div class="stat"><strong>Academic Innovation</strong><span>Research-minded projects</span></div>
-                </div>
-                """,
-                unsafe_allow_html=True,
-            )
-        with h_right:
-            if logo_path.exists():
-                safe_image(logo_path)
-            else:
-                st.markdown('<div class="logo-placeholder">IAAA</div>', unsafe_allow_html=True)
-        st.markdown("</div>", unsafe_allow_html=True)
+            </div>
+        </section>
+        """,
+        unsafe_allow_html=True,
+    )
 
 
 def render_about():
@@ -748,24 +760,22 @@ def render_team():
         if not isinstance(member, dict):
             member = {}
         with cols[index % 3]:
-            st.markdown('<div class="card">', unsafe_allow_html=True)
             member_name = clean_text(member.get("name"), "Team Member")
+            member_role = clean_text(member.get("role"), "Technical Member")
+            member_description = clean_text(member.get("description"), "Profile details coming soon.")
             image_path = str(member.get("image", "") or "").strip()
             image_file = BASE_DIR / image_path if image_path and not Path(image_path).is_absolute() else None
-            if image_file and image_file.exists() and image_file.is_file():
-                st.image(str(image_file), use_container_width=True)
-            else:
-                st.markdown(
-                    f'<div class="avatar-placeholder">{member_initials(member_name)}</div>',
-                    unsafe_allow_html=True,
-                )
-            st.markdown(f"### {member_name}")
             st.markdown(
-                f'<p class="team-role">{clean_text(member.get("role"), "Technical Member")}</p>',
+                f"""
+                <div class="card team-card">
+                    {member_avatar_html(image_file, member_name)}
+                    <h3>{html.escape(member_name)}</h3>
+                    <p class="team-role">{html.escape(member_role)}</p>
+                    <p class="muted">{html.escape(member_description)}</p>
+                </div>
+                """,
                 unsafe_allow_html=True,
             )
-            st.markdown(f'<p class="muted">{clean_text(member.get("description"), "Profile details coming soon.")}</p>', unsafe_allow_html=True)
-            st.markdown("</div>", unsafe_allow_html=True)
 
 
 def render_projects():
@@ -785,21 +795,32 @@ def render_projects():
             if not isinstance(project, dict):
                 project = {}
             with col:
-                st.markdown('<div class="card">', unsafe_allow_html=True)
-                safe_image(project.get("image"))
-                st.markdown(f"### {clean_text(project.get('title'), 'Project Title')}")
-                st.markdown(f'<p class="muted">{clean_text(project.get("description"), "Project description coming soon.")}</p>', unsafe_allow_html=True)
+                title = str(project.get("title") or "").strip()
+                description = str(project.get("description") or "").strip()
+                status = str(project.get("status") or "").strip()
                 technologies = project.get("technologies") or ["Technology details coming soon"]
                 if not isinstance(technologies, list):
                     technologies = [str(technologies)]
-                st.markdown(
-                    '<div class="badge-row">'
-                    + f'<span class="badge status">{clean_text(project.get("status"), "Planned")}</span>'
-                    + "".join(f'<span class="badge">{clean_text(tech, "Tech")}</span>' for tech in technologies)
-                    + "</div>",
-                    unsafe_allow_html=True,
+                technologies = [str(tech).strip() for tech in technologies if str(tech).strip()]
+
+                if not any([title, description, status, technologies]):
+                    continue
+
+                title = title or "Project Title"
+                description = description or "Project details will be shared as the work develops."
+                status = status or "Planned"
+                badges = f'<span class="badge status">{html.escape(status)}</span>' + "".join(
+                    f'<span class="badge">{html.escape(tech)}</span>' for tech in technologies
                 )
-                st.markdown("</div>", unsafe_allow_html=True)
+                project_card_html = (
+                    '<div class="card project-card">'
+                    f'{project_image_html(project.get("image"), title)}'
+                    f'<h3>{html.escape(title)}</h3>'
+                    f'<p class="muted">{html.escape(description)}</p>'
+                    f'<div class="badge-row">{badges}</div>'
+                    '</div>'
+                )
+                st.markdown(project_card_html, unsafe_allow_html=True)
 
 
 def render_achievements():
@@ -816,12 +837,18 @@ def render_achievements():
     for item in achievements:
         if not isinstance(item, dict):
             item = {}
+        title = str(item.get("title") or "").strip()
+        description = str(item.get("description") or "").strip()
+        date = str(item.get("date") or "").strip()
+        achievement_type = str(item.get("type") or "").strip()
+        if not any([title, description, date, achievement_type]):
+            continue
         st.markdown(
             f"""
             <div class="timeline-item">
-                <div class="timeline-meta">{clean_text(item.get("type"), "Achievement")} | {clean_text(item.get("date"), "Date TBA")}</div>
-                <h3>{clean_text(item.get("title"), "Achievement Title")}</h3>
-                <p class="muted">{clean_text(item.get("description"), "Achievement details coming soon.")}</p>
+                <div class="timeline-meta">{html.escape(achievement_type or "Achievement")} | {html.escape(date or "Date TBA")}</div>
+                <h3>{html.escape(title or "Achievement Title")}</h3>
+                <p class="muted">{html.escape(description or "Achievement details coming soon.")}</p>
             </div>
             """,
             unsafe_allow_html=True,
@@ -853,7 +880,7 @@ def render_gallery():
                 safe_image(image, caption=image.stem.replace("-", " ").replace("_", " ").title())
     else:
         st.markdown(
-            '<div class="empty-note">Gallery media will appear here when team photos, screenshots, or demo visuals are available.</div>',
+            '<p class="muted">Gallery media will appear here when team photos, screenshots, or demo visuals are available.</p>',
             unsafe_allow_html=True,
         )
 
@@ -879,12 +906,27 @@ def render_links():
 
     cols = st.columns(2, gap="medium")
     for index, (category, links) in enumerate(IMPORTANT_LINKS.items()):
+        visible_links = [
+            link
+            for link in links
+            if isinstance(link, dict) and str(link.get("url") or "").strip()
+        ]
+        if not visible_links:
+            continue
         with cols[index % 2]:
-            st.markdown('<div class="card link-list">', unsafe_allow_html=True)
-            st.markdown(f"### {category}")
-            for link in links:
-                render_link(link.get("label", "Link"), link.get("url", ""))
-            st.markdown("</div>", unsafe_allow_html=True)
+            links_html = "".join(
+                f'<p><a href="{html.escape(str(link.get("url", "")).strip())}">{html.escape(clean_text(link.get("label"), "Link"))}</a></p>'
+                for link in visible_links
+            )
+            st.markdown(
+                f"""
+                <div class="card link-list">
+                    <h3>{html.escape(category)}</h3>
+                    {links_html}
+                </div>
+                """,
+                unsafe_allow_html=True,
+            )
 
 
 def render_contact():
